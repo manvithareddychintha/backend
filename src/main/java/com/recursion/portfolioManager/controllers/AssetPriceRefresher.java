@@ -1,0 +1,19 @@
+package com.recursion.portfolioManager.controllers;
+
+import com.recursion.portfolioManager.services.AssetPriceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AssetPriceRefresher {
+
+    @Autowired
+    AssetPriceService assetPriceService;
+
+    @GetMapping("/refresh")
+    public ResponseEntity refresh(){
+        return assetPriceService.refreshPrices();
+    }
+}

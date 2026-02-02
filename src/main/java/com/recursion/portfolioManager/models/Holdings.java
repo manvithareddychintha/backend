@@ -25,4 +25,20 @@ public class Holdings {
     private BigDecimal avgBuyPrice;
 
     private LocalDateTime createdAt;
+
+    @Transient
+    private BigDecimal currentPrice;
+
+    @Transient
+    private BigDecimal profit;
+
+    // helper to calculate profit
+    public void updateProfit(BigDecimal latestPrice) {
+        this.currentPrice = latestPrice;
+        if (latestPrice != null && avgBuyPrice != null && quantity != null) {
+            this.profit = latestPrice.subtract(avgBuyPrice).multiply(quantity);
+        } else {
+            this.profit = BigDecimal.ZERO;
+        }
+    }
 }

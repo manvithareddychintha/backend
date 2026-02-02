@@ -1,8 +1,42 @@
 package com.recursion.portfolioManager.repositories;
 
+import com.recursion.portfolioManager.DTO.HoldingWithPriceDTO;
+import com.recursion.portfolioManager.DTO.SymbolType;
 import com.recursion.portfolioManager.models.Holdings;
+import com.recursion.portfolioManager.models.other.AssetType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 public interface HoldingsRepository extends JpaRepository<Holdings,Long> {
+
+    @Query("SELECT DISTINCT new com.recursion.portfolioManager.DTO.SymbolType(a.symbol, a.assetType) FROM Holdings a")
+    List<SymbolType> findDistinctSymbolAndType();
+
+    @Query("""
+SELECT new com.recursion.portfolioManager.DTO.HoldingWithPriceDTO(
+    h.id,
+    h.symbol,
+    h.assetName,
+    h.assetType,
+    h.quantity,
+    h.avgBuyPrice,
+    p.price,
+    (p.price - h.avgBuyPrice) * h.quantity
+)
+FROM Holdings h
+JOIN AssetPrice p ON h.symbol = p.symbol
+WHERE p.timestamp = (
+    SELECT MAX(p2.timestamp)
+    FROM AssetPrice p2
+    WHERE p2.symbol = h.symbol
+)
+""")
+    List<HoldingWithPriceDTO> findHoldingsWithLatestPriceAndProfit();
+
+
+//    List<Holdings> findDistinctBySymbolAndAssetType(String symbol, AssetType assetType);
+
 
 }

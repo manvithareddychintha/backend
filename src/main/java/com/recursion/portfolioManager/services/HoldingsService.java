@@ -38,4 +38,9 @@ public class HoldingsService {
         holding.setCreatedAt(LocalDateTime.now());
         return holdingRepository.save(holding);
     }
+
+    public List<Holdings> getAll()
+    {
+        return holdingRepository.findAll();
+    }
 }
