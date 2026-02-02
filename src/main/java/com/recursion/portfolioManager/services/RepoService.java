@@ -24,7 +24,7 @@ public class RepoService {
     @Autowired
     RestTemplate restTemplate;
 
-    static String url="https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AMZN&apikey=";
+    static String url="https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
 
     @Value("${alphavantage.api.key}")
     private String apikey;
