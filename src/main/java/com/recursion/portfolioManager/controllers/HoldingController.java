@@ -50,5 +50,12 @@ public class HoldingController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteStocks(@PathVariable Long id)
+    {
+        holdingService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

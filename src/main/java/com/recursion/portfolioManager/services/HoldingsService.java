@@ -57,4 +57,8 @@ public class HoldingsService {
         holding.setCreatedAt(LocalDateTime.now());
         ;return holdingRepository.save(holding);
     }
+
+    public void deleteById(Long id){
+        holdingRepository.deleteById(id);
+    }
 }
