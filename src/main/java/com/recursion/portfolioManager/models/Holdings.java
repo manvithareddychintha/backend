@@ -25,6 +25,7 @@ public class Holdings {
     private BigDecimal avgBuyPrice;
 
     private LocalDateTime createdAt;
+//    private LocalDateTime UpdatedAt;
 
     @Transient
     private BigDecimal currentPrice;

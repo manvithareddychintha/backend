@@ -5,9 +5,13 @@ import com.recursion.portfolioManager.DTO.InvestedValueDTO;
 import com.recursion.portfolioManager.DTO.SymbolType;
 import com.recursion.portfolioManager.models.Holdings;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface HoldingsRepository extends JpaRepository<Holdings, Long> {
 
@@ -34,6 +38,8 @@ public interface HoldingsRepository extends JpaRepository<Holdings, Long> {
         )
     """)
     List<HoldingWithPriceDTO> findHoldingsWithLatestPriceAndProfit();
+
+    Optional<Holdings> findBySymbolIgnoreCase(String symbol);
 
     @Query("""
 SELECT 
@@ -76,4 +82,8 @@ GROUP BY h.assetType
     """)
     List<InvestedValueDTO> findInvestedValueBySymbol();
 
+    @Transactional
+    @Modifying
+    @Query("update Holdings h set h.quantity = ?1 where upper(h.symbol) = upper(?2)")
+    void updateQuantityBySymbolIgnoreCase(BigDecimal quantity, String symbol);
 }

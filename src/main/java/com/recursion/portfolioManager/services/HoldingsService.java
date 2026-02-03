@@ -32,6 +32,26 @@ public class HoldingsService {
             throw new IllegalArgumentException("Invalid company / asset symbol");
         }
 
+        if ("CASH".equalsIgnoreCase(request.getSymbol())) {
+            Optional<Holdings> existingCashHolding = holdingRepository.findBySymbolIgnoreCase(request.getSymbol());
+
+            if (existingCashHolding.isPresent()) {
+                Holdings cashHolding = existingCashHolding.get();
+                cashHolding.setQuantity(cashHolding.getQuantity().add(request.getQuantity()));
+                cashHolding.setAvgBuyPrice(request.getAvgBuyPrice());
+                return holdingRepository.save(cashHolding);
+            } else {
+                // If no "CASH" holding exists, create a new one
+                Holdings newCashHolding = new Holdings();
+                newCashHolding.setAssetType(request.getAssetType());
+                newCashHolding.setSymbol(request.getSymbol());
+                newCashHolding.setAssetName(request.getAssetName());
+                newCashHolding.setQuantity(request.getQuantity());
+                newCashHolding.setAvgBuyPrice(request.getAvgBuyPrice());
+                newCashHolding.setCreatedAt(LocalDateTime.now());
+                return holdingRepository.save(newCashHolding);
+            }
+        }
         Holdings holding = new Holdings();
         holding.setAssetType(request.getAssetType());
         holding.setSymbol(request.getSymbol());
@@ -49,6 +69,7 @@ public class HoldingsService {
 
     public Holdings update(Long id,HoldingRequest request)
     {
+
         if(holdingRepository.existsById(id))
             holdingRepository.deleteById(id);
         Holdings holding = new Holdings();
