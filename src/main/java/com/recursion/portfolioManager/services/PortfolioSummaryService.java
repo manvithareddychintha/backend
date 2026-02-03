@@ -1,5 +1,6 @@
 package com.recursion.portfolioManager.services;
 
+import com.recursion.portfolioManager.DTO.InvestedValueDTO;
 import com.recursion.portfolioManager.DTO.PortfolioSummary;
 import com.recursion.portfolioManager.repositories.HoldingValue;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
@@ -17,6 +18,12 @@ public class PortfolioSummaryService {
     public PortfolioSummaryService(HoldingsRepository holdingsRepository) {
         this.holdingsRepository = holdingsRepository;
     }
+
+    public List<InvestedValueDTO> getInvestedValue()
+    {
+        return holdingsRepository.findInvestedValueBySymbol();
+    }
+
 
     public PortfolioSummary getPortfolioSummary() {
 

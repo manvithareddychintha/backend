@@ -53,8 +53,8 @@ public class AssetPriceService {
                     BigDecimal close = extractLatestClose(response);
 
                     savePrice(s.getSymbol(), close);
-                }else {
-                    savePrice(s.getSymbol(),new BigDecimal(0));
+                }else{
+                    savePrice(s.getSymbol(),new BigDecimal(1));
                 }
             }
 

@@ -43,4 +43,18 @@ public class HoldingsService {
     {
         return holdingRepository.findAll();
     }
+
+    public Holdings update(Long id,HoldingRequest request)
+    {
+        if(holdingRepository.existsById(id))
+            holdingRepository.deleteById(id);
+        Holdings holding = new Holdings();
+        holding.setAssetType(request.getAssetType());
+        holding.setSymbol(request.getSymbol());
+        holding.setAssetName(request.getAssetName());
+        holding.setQuantity(request.getQuantity());
+        holding.setAvgBuyPrice(request.getAvgBuyPrice());
+        holding.setCreatedAt(LocalDateTime.now());
+        ;return holdingRepository.save(holding);
+    }
 }
