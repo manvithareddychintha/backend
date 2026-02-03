@@ -1,6 +1,7 @@
 package com.recursion.portfolioManager.services;
 
 import com.recursion.portfolioManager.DTO.HoldingRequest;
+import com.recursion.portfolioManager.DTO.HoldingWithPriceDTO;
 import com.recursion.portfolioManager.models.Holdings;
 import com.recursion.portfolioManager.models.other.AssetType;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
@@ -27,6 +28,7 @@ public class HoldingsService {
                 request.getSymbol(),
                 request.getAssetType()
         );
+//        System.out.println(valid);
 
         if (!valid) {
             throw new IllegalArgumentException("Invalid company / asset symbol");
@@ -82,15 +84,22 @@ public class HoldingsService {
         ;return holdingRepository.save(holding);
     }
 
-    public void deleteById(Long id){
-        holdingRepository.deleteById(id);
+    public boolean deleteById(Long id){
+        boolean re=holdingRepository.existsById(id);
+        if(re)
+            holdingRepository.deleteById(id);
+        return re;
     }
 
-    public ResponseEntity<Optional<Holdings>> fetchById(Long id)
+    public Optional<Holdings> fetchById(Long id)
     {
-        if(holdingRepository.existsById(id))
-            return ResponseEntity.ok(holdingRepository.findById(id));
-        return ResponseEntity.noContent().build();
+//        if(holdingRepository.existsById(id))
+            return holdingRepository.findById(id);
+//        return ResponseEntity.noContent().build();
 
+    }
+    public List<HoldingWithPriceDTO> findHoldingsWithLatestPriceAndProfit()
+    {
+        return holdingRepository.findHoldingsWithLatestPriceAndProfit();
     }
 }

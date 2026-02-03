@@ -31,6 +31,7 @@ public class MarketApiService {
         String url2 = url+symbol+"&apikey="+apikey;
         String apiResponseString=restTemplate.getForObject(url2, String.class);
 
+//        System.out.println(url2);
         ObjectMapper mapper = new ObjectMapper();
 
         JsonNode root = mapper.readTree(apiResponseString);
