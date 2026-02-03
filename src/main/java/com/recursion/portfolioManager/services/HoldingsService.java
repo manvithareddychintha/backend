@@ -4,11 +4,14 @@ import com.recursion.portfolioManager.DTO.HoldingRequest;
 import com.recursion.portfolioManager.models.Holdings;
 import com.recursion.portfolioManager.models.other.AssetType;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HoldingsService {
@@ -60,5 +63,13 @@ public class HoldingsService {
 
     public void deleteById(Long id){
         holdingRepository.deleteById(id);
+    }
+
+    public ResponseEntity<Optional<Holdings>> fetchById(Long id)
+    {
+        if(holdingRepository.existsById(id))
+            return ResponseEntity.ok(holdingRepository.findById(id));
+        return ResponseEntity.noContent().build();
+
     }
 }

@@ -57,5 +57,10 @@ public class HoldingController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity fetchById(@PathVariable Long id)
+    {
+        return holdingService.fetchById(id);
+    }
 
 }
