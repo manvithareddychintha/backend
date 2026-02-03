@@ -1,6 +1,7 @@
 package com.recursion.portfolioManager.repositories;
 
 import com.recursion.portfolioManager.DTO.HoldingWithPriceDTO;
+import com.recursion.portfolioManager.DTO.InvestedValueDTO;
 import com.recursion.portfolioManager.DTO.SymbolType;
 import com.recursion.portfolioManager.models.Holdings;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -65,4 +66,14 @@ GROUP BY h.assetType
         )
     """)
     List<HoldingValue> findHoldingValues();
+
+        @Query("""
+    SELECT new com.recursion.portfolioManager.DTO.InvestedValueDTO(
+        h.symbol,
+        (h.avgBuyPrice * h.quantity)
+    )
+    FROM Holdings h
+    """)
+    List<InvestedValueDTO> findInvestedValueBySymbol();
+
 }
