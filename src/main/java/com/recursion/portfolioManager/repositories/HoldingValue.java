@@ -7,4 +7,8 @@ public interface HoldingValue {
     BigDecimal getQuantity();
     BigDecimal getAvgBuyPrice();
     BigDecimal getLatestPrice();
+
+    String getAssetType();
+    Double getTotalValue();
+
 }

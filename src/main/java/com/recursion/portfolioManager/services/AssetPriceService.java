@@ -2,6 +2,7 @@ package com.recursion.portfolioManager.services;
 
 import com.recursion.portfolioManager.DTO.SymbolType;
 import com.recursion.portfolioManager.models.*;
+import com.recursion.portfolioManager.models.other.AssetType;
 import com.recursion.portfolioManager.repositories.AssetPriceRepository;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,16 +41,20 @@ public class AssetPriceService {
             List<SymbolType> symbolTypeList = holdingsRepository.findDistinctSymbolAndType();
 
             for (SymbolType s : symbolTypeList) {
-                String url =
-                        "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
-                                "&symbol=" + s.getSymbol() +
-                                "&apikey=" + apikey;
+                if(s.getAssetType== AssetType.CASH) {
+                    String url =
+                            "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
+                                    "&symbol=" + s.getSymbol() +
+                                    "&apikey=" + apikey;
 
-                String response = restTemplate.getForObject(url, String.class);
+                    String response = restTemplate.getForObject(url, String.class);
 
-                BigDecimal close = extractLatestClose(response);
+                    BigDecimal close = extractLatestClose(response);
 
-                savePrice(s.getSymbol(), close);
+                    savePrice(s.getSymbol(), close);
+                }else{
+                    savePrice((s.getSymbol(),new BigDecimal(0));
+                }
             }
 
 

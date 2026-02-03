@@ -18,6 +18,8 @@ public class PortfolioSummaryService {
         this.holdingsRepository = holdingsRepository;
     }
 
+
+
     public PortfolioSummary getPortfolioSummary() {
 
         List<HoldingValue> values = holdingsRepository.findHoldingValues();

@@ -35,6 +35,23 @@ public interface HoldingsRepository extends JpaRepository<Holdings, Long> {
     List<HoldingWithPriceDTO> findHoldingsWithLatestPriceAndProfit();
 
     @Query("""
+SELECT 
+    h.assetType AS assetType,
+    SUM(h.quantity * ap.price) AS totalValue
+FROM Holdings h
+JOIN AssetPrice ap 
+    ON ap.symbol = h.symbol
+WHERE ap.timestamp = (
+    SELECT MAX(a2.timestamp)
+    FROM AssetPrice a2
+    WHERE a2.symbol = h.symbol
+)
+GROUP BY h.assetType
+""")
+    List<HoldingValue> findAllocationByAssetType();
+
+
+    @Query("""
         SELECT
             h.quantity AS quantity,
             h.avgBuyPrice AS avgBuyPrice,
