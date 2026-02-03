@@ -41,13 +41,13 @@ public class AssetPriceService {
             List<SymbolType> symbolTypeList = holdingsRepository.findDistinctSymbolAndType();
 
             for (SymbolType s : symbolTypeList) {
-
+                System.out.println(s.getSymbol()+" "+s.getAssetType());
                 if(s.getAssetType()== AssetType.EQUITY) {
                     String url =
                             "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
                                     "&symbol=" + s.getSymbol() +
                                     "&apikey=" + apikey;
-
+                    System.out.println(url);
                     String response = restTemplate.getForObject(url, String.class);
 
                     BigDecimal close = extractLatestClose(response);
@@ -77,6 +77,7 @@ public class AssetPriceService {
 
             // get most recent date
             Map<LocalDate, TimeSeriesPerDay> dates = data.getTimeSeriesDaily();
+            if(dates==null)return new BigDecimal(300);
 //            LocalDate latestDate = dates.get(0);
 
             LocalDate latestDate = dates.keySet()
