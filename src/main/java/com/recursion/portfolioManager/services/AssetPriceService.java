@@ -41,7 +41,7 @@ public class AssetPriceService {
             List<SymbolType> symbolTypeList = holdingsRepository.findDistinctSymbolAndType();
 
             for (SymbolType s : symbolTypeList) {
-                if(s.getAssetType()== AssetType.CASH) {
+                if(s.getAssetType()== AssetType.EQUITY) {
                     String url =
                             "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
                                     "&symbol=" + s.getSymbol() +
@@ -53,7 +53,7 @@ public class AssetPriceService {
 
                     savePrice(s.getSymbol(), close);
                 }else{
-                    savePrice(s.getSymbol(),new BigDecimal(0));
+                    savePrice(s.getSymbol(),new BigDecimal(1));
                 }
             }
 

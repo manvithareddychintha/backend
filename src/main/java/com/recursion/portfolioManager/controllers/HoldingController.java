@@ -43,5 +43,12 @@ public class HoldingController {
         return holdingsRepository.findHoldingsWithLatestPriceAndProfit();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity updateStocks(@PathVariable Long id,@RequestBody HoldingRequest holdings)
+    {
+        holdingService.update(id,holdings);
+        return ResponseEntity.ok().build();
+    }
+
 
 }
