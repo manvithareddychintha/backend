@@ -5,6 +5,7 @@ import com.recursion.portfolioManager.models.ResponseApi;
 import com.recursion.portfolioManager.models.StockPrice30Days;
 import com.recursion.portfolioManager.models.TimeSeriesPerDay;
 import com.recursion.portfolioManager.repositories.StockPrice30daysRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,6 @@ public class RepoService {
         ResponseApi data = mapper.treeToValue(root, ResponseApi.class);
 
         return new ApiResult(true, data);
-
     }
 
     public void save30DaysRepo(String ticker)
@@ -96,6 +96,48 @@ public class RepoService {
 
         stockPrice30daysRepository.saveAll(prices);
 
+    }
+
+
+    @Transactional
+    public void save30DaysRepoFromRefresh(ResponseApi data) {
+        if (data == null || data.getMetaData() == null) {
+            System.out.println("Error: MetaData is null");
+            return;
+        }
+
+        String symbol = data.getMetaData().getSymbol();
+        System.out.println("Symbol: " + symbol);
+
+
+
+
+        // Get the series
+        Map<LocalDate, TimeSeriesPerDay> series = data.getTimeSeriesDaily();
+
+        List<Map.Entry<LocalDate, TimeSeriesPerDay>> last30 = series.entrySet().stream()
+                .sorted(Map.Entry.<LocalDate, TimeSeriesPerDay>comparingByKey().reversed())
+                .limit(30)
+                .toList();
+
+
+        List<StockPrice30Days> prices = new ArrayList<>();
+        for (Map.Entry<LocalDate, TimeSeriesPerDay> entry : last30) {
+            StockPrice30Days sp = new StockPrice30Days();
+            sp.setSymbol(symbol);
+            sp.setLocalDate(entry.getKey());
+            sp.setClosePrice(new BigDecimal(entry.getValue().getClose()));
+            prices.add(sp);
+        }
+
+
+        // Save the new prices
+        try {
+            stockPrice30daysRepository.saveAll(prices);
+        } catch (Exception e) {
+            System.out.println("Error saving data: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }

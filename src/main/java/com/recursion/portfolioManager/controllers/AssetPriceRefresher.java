@@ -13,7 +13,7 @@ public class AssetPriceRefresher {
     AssetPriceService assetPriceService;
 
     @GetMapping("/refresh")
-    public ResponseEntity refresh(){
+    public ResponseEntity refresh() throws Exception{
         return assetPriceService.refreshPrices();
     }
 }

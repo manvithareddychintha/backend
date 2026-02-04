@@ -2,18 +2,30 @@ package com.recursion.portfolioManager.services;
 
 import com.recursion.portfolioManager.DTO.InvestedValueDTO;
 import com.recursion.portfolioManager.DTO.PortfolioSummary;
-import com.recursion.portfolioManager.repositories.HoldingValue;
+import com.recursion.portfolioManager.DTO.HoldingValue;
+import com.recursion.portfolioManager.DTO.PortfolioValueDTO;
+import com.recursion.portfolioManager.models.Holdings;
+import com.recursion.portfolioManager.models.StockPrice30Days;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
+import com.recursion.portfolioManager.repositories.StockPrice30daysRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PortfolioSummaryService {
 
+    @Autowired
     private final HoldingsRepository holdingsRepository;
+
+    @Autowired
+    public StockPrice30daysRepository stockPrice30daysRepository;
 
     public PortfolioSummaryService(HoldingsRepository holdingsRepository) {
         this.holdingsRepository = holdingsRepository;
@@ -57,5 +69,29 @@ public class PortfolioSummaryService {
                 totalProfit,
                 profitPercentage
         );
+    }
+
+    public List<PortfolioValueDTO> getHoldingsTotalValue() {
+        List<PortfolioValueDTO> portfolioValues = new ArrayList<>();
+
+        List<Holdings> holdings = holdingsRepository.findAll();
+
+        for (Holdings holding : holdings) {
+            String symbol = holding.getSymbol();
+            BigDecimal quantity = holding.getQuantity();
+            BigDecimal avgBuyPrice = holding.getAvgBuyPrice();
+            LocalDateTime dateAdded = holding.getCreatedAt();
+
+            LocalDate dateAddedLocalDate = dateAdded.toLocalDate();
+
+            List<StockPrice30Days> stockPrices = stockPrice30daysRepository.findBySymbolAndLocalDateAfter(symbol, dateAddedLocalDate);
+
+            for (StockPrice30Days price : stockPrices) {
+                BigDecimal dailyValue = price.getClosePrice().multiply(quantity);
+                portfolioValues.add(new PortfolioValueDTO(price.getLocalDate(), dailyValue));
+            }
+        }
+
+        return portfolioValues;
     }
 }

@@ -1,5 +1,6 @@
 package com.recursion.portfolioManager.repositories;
 
+import com.recursion.portfolioManager.DTO.HoldingValue;
 import com.recursion.portfolioManager.DTO.HoldingWithPriceDTO;
 import com.recursion.portfolioManager.DTO.InvestedValueDTO;
 import com.recursion.portfolioManager.DTO.SymbolType;

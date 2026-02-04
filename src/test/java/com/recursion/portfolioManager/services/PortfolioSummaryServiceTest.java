@@ -1,7 +1,7 @@
 package com.recursion.portfolioManager.services;
 
 import com.recursion.portfolioManager.DTO.PortfolioSummary;
-import com.recursion.portfolioManager.repositories.HoldingValue;
+import com.recursion.portfolioManager.DTO.HoldingValue;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

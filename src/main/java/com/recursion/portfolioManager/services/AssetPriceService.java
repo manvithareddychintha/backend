@@ -5,6 +5,7 @@ import com.recursion.portfolioManager.models.*;
 import com.recursion.portfolioManager.models.other.AssetType;
 import com.recursion.portfolioManager.repositories.AssetPriceRepository;
 import com.recursion.portfolioManager.repositories.HoldingsRepository;
+import com.recursion.portfolioManager.repositories.StockPrice30daysRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,13 @@ public class AssetPriceService {
 
 
         @Autowired
+        RepoService repoService;
+
+        @Autowired
         private AssetPriceRepository priceRepository;
+
+        @Autowired
+        private StockPrice30daysRepository stockPrice30daysRepository;
 
         @Autowired
         private HoldingsRepository holdingsRepository;
@@ -38,32 +45,56 @@ public class AssetPriceService {
         @Value("${alphavantage.api.key}")
         private String apikey;
 
-        public ResponseEntity refreshPrices(){
-            List<SymbolType> symbolTypeList = holdingsRepository.findDistinctSymbolAndType();
+    public ResponseEntity refreshPrices() throws Exception{
+        List<SymbolType> symbolTypeList = holdingsRepository.findDistinctSymbolAndType();
 
-            for (SymbolType s : symbolTypeList) {
-                System.out.println(s.getSymbol()+" "+s.getAssetType());
-                if(s.getAssetType()== AssetType.EQUITY) {
-                    String url =
-                            "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
-                                    "&symbol=" + s.getSymbol() +
-                                    "&apikey=" + apikey;
-                    System.out.println(url);
-                    String response = restTemplate.getForObject(url, String.class);
+        LocalDateTime now = LocalDateTime.now();
 
-                    BigDecimal close = extractLatestClose(response);
+        for (SymbolType s : symbolTypeList) {
+            System.out.println("Processing Symbol: " + s.getSymbol() + " of Type: " + s.getAssetType());
 
-                    savePrice(s.getSymbol(), close);
-                }else{
-                    savePrice(s.getSymbol(),new BigDecimal(1));
+            if (s.getAssetType() == AssetType.EQUITY) {
+                Optional<StockPrice30Days> latestPriceOpt = stockPrice30daysRepository.findTopBySymbolOrderByLocalDateDesc(s.getSymbol());
+
+                if (latestPriceOpt.isPresent()) {
+                    StockPrice30Days latestPrice = latestPriceOpt.get();
+
+                    if (latestPrice.getLocalDate().isBefore(now.minusDays(1).toLocalDate())) {
+
+                        System.out.println("Data is stale for symbol " + s.getSymbol() + ", fetching new data...");
+                        fetchAndSavePrice(s);
+                    } else {
+                        System.out.println("Data is up-to-date for symbol " + s.getSymbol() + ", skipping API call.");
+                    }
+                } else {
+
+                    System.out.println("No data found for symbol " + s.getSymbol() + ", fetching from API...");
+                    fetchAndSavePrice(s);
                 }
+            } else {
+                savePrice(s.getSymbol(), new BigDecimal(1));
             }
-
-
-            return ResponseEntity.ok().build();
         }
 
-        private BigDecimal extractLatestClose(String json)  {
+        return ResponseEntity.ok("Prices refreshed successfully");
+    }
+
+    private void fetchAndSavePrice(SymbolType s) throws Exception{
+        String url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY" +
+                "&symbol=" + s.getSymbol() +
+                "&apikey=" + apikey;
+        System.out.println("API URL: " + url);
+        Thread.sleep(2000);
+
+        String response = restTemplate.getForObject(url, String.class);
+
+        BigDecimal close = extractLatestClose(response);
+
+        savePrice(s.getSymbol(), close);
+    }
+
+
+    private BigDecimal extractLatestClose(String json)  {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(json);
 
@@ -73,10 +104,8 @@ public class AssetPriceService {
 
             ResponseApi data = mapper.treeToValue(root, ResponseApi.class);
 
-            //return new ApiResult(true, data);
-            ///JsonNode timeSeries = root.get("Time Series (Daily)");
 
-            // get most recent date
+            repoService.save30DaysRepoFromRefresh(data);
             Map<LocalDate, TimeSeriesPerDay> dates = data.getTimeSeriesDaily();
             if(dates==null)return new BigDecimal(300);
 //            LocalDate latestDate = dates.get(0);
@@ -94,19 +123,15 @@ public class AssetPriceService {
 
 
     public void savePrice(String symbol, BigDecimal price) {
-        // Check if the price already exists for the given symbol
         Optional<AssetPrice> existingPrice = priceRepository.findBySymbol(symbol);
 
-        // If it exists, delete the existing price
         existingPrice.ifPresent(priceRepository::delete);
 
-        // Create a new AssetPrice object
         AssetPrice p = new AssetPrice();
         p.setSymbol(symbol);
         p.setPrice(price);
         p.setTimestamp(LocalDateTime.now());
 
-        // Save the new price
         priceRepository.save(p);
     }
     }

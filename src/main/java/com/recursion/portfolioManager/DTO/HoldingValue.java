@@ -1,4 +1,4 @@
-package com.recursion.portfolioManager.repositories;
+package com.recursion.portfolioManager.DTO;
 
 import java.math.BigDecimal;
 
