@@ -21,7 +21,7 @@ public class PortfolioSummaryService {
 
     public List<InvestedValueDTO> getInvestedValue()
     {
-        return holdingsRepository.findInvestedValueBySymbol();
+        return holdingsRepository.findTotalInvestedValueBySymbol();
     }
 
 

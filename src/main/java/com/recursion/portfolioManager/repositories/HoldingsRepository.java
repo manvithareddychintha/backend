@@ -82,6 +82,17 @@ GROUP BY h.assetType
     """)
     List<InvestedValueDTO> findInvestedValueBySymbol();
 
+    @Query("""
+    SELECT new com.recursion.portfolioManager.DTO.InvestedValueDTO(
+        h.symbol,
+        SUM(h.avgBuyPrice * h.quantity)
+    )
+    FROM Holdings h
+    GROUP BY h.symbol
+    """)
+    List<InvestedValueDTO> findTotalInvestedValueBySymbol();
+
+
     @Transactional
     @Modifying
     @Query("update Holdings h set h.quantity = ?1 where upper(h.symbol) = upper(?2)")
