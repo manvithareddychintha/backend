@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AssetPriceService {
@@ -92,14 +93,22 @@ public class AssetPriceService {
         }
 
 
-        public void savePrice(String symbol, BigDecimal price) {
-            AssetPrice p = new AssetPrice();
-            p.setSymbol(symbol);
-            p.setPrice(price);
-            p.setTimestamp(LocalDateTime.now());
+    public void savePrice(String symbol, BigDecimal price) {
+        // Check if the price already exists for the given symbol
+        Optional<AssetPrice> existingPrice = priceRepository.findBySymbol(symbol);
 
-            priceRepository.save(p);
-        }
+        // If it exists, delete the existing price
+        existingPrice.ifPresent(priceRepository::delete);
+
+        // Create a new AssetPrice object
+        AssetPrice p = new AssetPrice();
+        p.setSymbol(symbol);
+        p.setPrice(price);
+        p.setTimestamp(LocalDateTime.now());
+
+        // Save the new price
+        priceRepository.save(p);
+    }
     }
 
 
