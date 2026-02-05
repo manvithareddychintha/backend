@@ -16,7 +16,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PortfolioSummaryService {
@@ -76,6 +78,8 @@ public class PortfolioSummaryService {
 
         List<Holdings> holdings = holdingsRepository.findAll();
 
+        Map<LocalDate,BigDecimal> map = new HashMap<>();
+
         for (Holdings holding : holdings) {
             String symbol = holding.getSymbol();
             BigDecimal quantity = holding.getQuantity();
@@ -88,10 +92,16 @@ public class PortfolioSummaryService {
 
             for (StockPrice30Days price : stockPrices) {
                 BigDecimal dailyValue = price.getClosePrice().multiply(quantity);
-                portfolioValues.add(new PortfolioValueDTO(price.getLocalDate(), dailyValue));
+                if(!map.containsKey(price.getLocalDate()))
+                map.put(price.getLocalDate(), dailyValue);
+                else map.put(price.getLocalDate(),map.get(price.getLocalDate()).add(dailyValue));
             }
         }
 
+        for(Map.Entry<LocalDate, BigDecimal> entry:map.entrySet())
+        {
+            portfolioValues.add(new PortfolioValueDTO(entry.getKey(),entry.getValue()));
+        }
         return portfolioValues;
     }
 }

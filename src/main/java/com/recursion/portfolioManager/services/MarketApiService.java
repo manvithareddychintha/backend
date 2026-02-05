@@ -26,7 +26,6 @@ public class MarketApiService {
 
 
     public boolean isValidSymbol(String symbol, AssetType type) {
-        // call API with symbol
 
         String url2 = url+symbol+"&apikey="+apikey;
         String apiResponseString=restTemplate.getForObject(url2, String.class);
@@ -44,7 +43,6 @@ public class MarketApiService {
 
         ResponseApi data = mapper.treeToValue(root, ResponseApi.class);
 
-        // if API returns "Error Message" → false
         return true;
     }
 }
